@@ -1,99 +1,104 @@
-# 💾 Intelli-PEST Commit All Repos
-# Commits changes to multiple repos with the same message
+# Intelli-PEST Batch Commit Script
+# Commits changes across selected repositories
 # Usage: .\commit-all.ps1 -Message "Your commit message" [-Backend] [-App] [-KD] [-All]
 
 param(
     [Parameter(Mandatory=$true)]
     [string]$Message,
-    
     [switch]$Backend,
     [switch]$App,
     [switch]$KD,
     [switch]$All
 )
 
-# Validate at least one repo is selected
-if (-not ($Backend -or $App -or $KD -or $All)) {
-    Write-Host ""
-    Write-Host "❌ Error: You must specify at least one repository to commit to." -ForegroundColor Red
-    Write-Host ""
-    Write-Host "Usage:" -ForegroundColor Yellow
-    Write-Host "  .\commit-all.ps1 -Message 'Your message' -All           # Commit to all repos"
-    Write-Host "  .\commit-all.ps1 -Message 'Your message' -Backend       # Commit to Backend only"
-    Write-Host "  .\commit-all.ps1 -Message 'Your message' -Backend -App  # Commit to Backend and App"
-    Write-Host "  .\commit-all.ps1 -Message 'Your message' -KD            # Commit to KnowledgeDistillation"
-    Write-Host ""
-    exit 1
-}
-
-$timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-
 Write-Host ""
-Write-Host "═══════════════════════════════════════════════════════════════════════" -ForegroundColor Cyan
-Write-Host "                    INTELLI-PEST COMMIT ALL                             " -ForegroundColor Cyan
-Write-Host "═══════════════════════════════════════════════════════════════════════" -ForegroundColor Cyan
-Write-Host ""
-Write-Host "📝 Message: $Message" -ForegroundColor White
-Write-Host "🕐 Time:    $timestamp" -ForegroundColor Gray
+Write-Host "=======================================================================" -ForegroundColor Cyan
+Write-Host "                    INTELLI-PEST BATCH COMMIT                          " -ForegroundColor Cyan
+Write-Host "=======================================================================" -ForegroundColor Cyan
 Write-Host ""
 
 $repos = @()
 
-if ($All -or $Backend) {
-    $repos += @{ Name = "⚙️ Backend"; Path = "D:\Intelli_PEST-Backend" }
-}
-if ($All -or $App) {
-    $repos += @{ Name = "📱 App"; Path = "D:\App\Intelli_PEST" }
-}
-if ($All -or $KD) {
-    $repos += @{ Name = "🧠 KnowledgeDistillation"; Path = "D:\KnowledgeDistillation" }
+if ($All) {
+    $repos = @(
+        @{ Name = "Backend"; Path = "D:\Intelli_PEST-Backend"; Tag = "[BE]" },
+        @{ Name = "App"; Path = "D:\App\Intelli_PEST"; Tag = "[APP]" },
+        @{ Name = "KnowledgeDistillation"; Path = "D:\KnowledgeDistillation"; Tag = "[KD]" }
+    )
+} else {
+    if ($Backend) { $repos += @{ Name = "Backend"; Path = "D:\Intelli_PEST-Backend"; Tag = "[BE]" } }
+    if ($App) { $repos += @{ Name = "App"; Path = "D:\App\Intelli_PEST"; Tag = "[APP]" } }
+    if ($KD) { $repos += @{ Name = "KnowledgeDistillation"; Path = "D:\KnowledgeDistillation"; Tag = "[KD]" } }
 }
 
-$results = @()
+if ($repos.Count -eq 0) {
+    Write-Host "[!] No repositories selected. Use -Backend, -App, -KD, or -All" -ForegroundColor Yellow
+    exit 1
+}
+
+Write-Host "Commit Message: $Message" -ForegroundColor White
+Write-Host "Repositories:   $($repos.Name -join ', ')" -ForegroundColor White
+Write-Host ""
+
+$committed = @()
+$skipped = @()
 
 foreach ($repo in $repos) {
-    Write-Host "$($repo.Name)" -ForegroundColor Yellow
+    Write-Host "$($repo.Tag) $($repo.Name)" -ForegroundColor Yellow
+    
+    if (-not (Test-Path "$($repo.Path)\.git")) {
+        Write-Host "   [X] Not a git repository - skipping" -ForegroundColor Red
+        $skipped += $repo.Name
+        continue
+    }
     
     Push-Location $repo.Path
     
+    # Check for changes
     $status = git status --porcelain 2>$null
+    if (-not $status) {
+        Write-Host "   [SKIP] No changes to commit" -ForegroundColor Gray
+        $skipped += $repo.Name
+        Pop-Location
+        continue
+    }
     
-    if ($status) {
-        git add -A
-        git commit -m "$Message" 2>&1 | Out-Null
-        $hash = git rev-parse --short HEAD 2>$null
-        Write-Host "   ✅ Committed: $hash" -ForegroundColor Green
-        $results += @{ Repo = $repo.Name; Status = "Committed"; Hash = $hash }
+    # Stage all changes
+    git add -A 2>$null
+    
+    # Commit
+    $result = git commit -m $Message 2>&1
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host "   [OK] Committed successfully" -ForegroundColor Green
+        $committed += $repo.Name
     } else {
-        Write-Host "   ⏭️ No changes to commit" -ForegroundColor Gray
-        $results += @{ Repo = $repo.Name; Status = "Skipped"; Hash = "-" }
+        Write-Host "   [!] Commit failed: $result" -ForegroundColor Red
+        $skipped += $repo.Name
     }
     
     Pop-Location
 }
 
-# Update parent to track new submodule commits
 Write-Host ""
-Write-Host "🏠 Parent (Workspace)" -ForegroundColor Yellow
-
-Push-Location "D:\"
-
-# Stage submodule changes and any parent changes
-git add -A 2>$null
-$parentStatus = git status --porcelain 2>$null
-
-if ($parentStatus) {
-    git commit -m "sync: $Message" 2>&1 | Out-Null
-    $parentHash = git rev-parse --short HEAD 2>$null
-    Write-Host "   ✅ Synced: $parentHash (tracks submodule versions)" -ForegroundColor Green
-} else {
-    Write-Host "   ⏭️ No sync needed" -ForegroundColor Gray
+Write-Host "=======================================================================" -ForegroundColor Cyan
+if ($committed.Count -gt 0) {
+    Write-Host "Committed: $($committed -join ', ')" -ForegroundColor Green
+}
+if ($skipped.Count -gt 0) {
+    Write-Host "Skipped:   $($skipped -join ', ')" -ForegroundColor Yellow
 }
 
-Pop-Location
-
+# Ask about parent repo update
 Write-Host ""
-Write-Host "═══════════════════════════════════════════════════════════════════════" -ForegroundColor Cyan
-Write-Host "  ✅ Commit complete! Use .\push-all.ps1 to push changes.              " -ForegroundColor Green
-Write-Host "═══════════════════════════════════════════════════════════════════════" -ForegroundColor Cyan
+Write-Host "[?] Update parent repo submodule references? (y/n): " -NoNewline -ForegroundColor Magenta
+$response = Read-Host
+if ($response -eq 'y' -or $response -eq 'Y') {
+    Push-Location D:\
+    git add Intelli_PEST-Backend App/Intelli_PEST KnowledgeDistillation 2>$null
+    git commit -m "chore: Update submodule references - $Message" 2>$null
+    Write-Host "   [OK] Parent repo updated" -ForegroundColor Green
+    Pop-Location
+}
+
+Write-Host "=======================================================================" -ForegroundColor Cyan
 Write-Host ""

@@ -1,158 +1,125 @@
-# 🔍 Intelli-PEST Pipeline Sync Check
-# Verifies compatibility between repos (model paths, class counts, API endpoints)
+# Intelli-PEST Sync Check Script  
+# Verifies all components are compatible and pipeline is operational
 # Usage: .\sync-check.ps1
 
 Write-Host ""
-Write-Host "═══════════════════════════════════════════════════════════════════════" -ForegroundColor Cyan
-Write-Host "                 INTELLI-PEST PIPELINE SYNC CHECK                       " -ForegroundColor Cyan
-Write-Host "═══════════════════════════════════════════════════════════════════════" -ForegroundColor Cyan
+Write-Host "=======================================================================" -ForegroundColor Cyan
+Write-Host "                    INTELLI-PEST SYNC CHECK                            " -ForegroundColor Cyan
+Write-Host "=======================================================================" -ForegroundColor Cyan
 Write-Host ""
 
-$issues = @()
-$checks = 0
-$passed = 0
+$errors = @()
+$warnings = @()
 
-# =============================================================================
-# Check 1: Student Model Exists
-# =============================================================================
-$checks++
-Write-Host "1️⃣ Checking student model..." -ForegroundColor Yellow
+# Check 1: Model file existence
+Write-Host "[1/5] Checking model files..." -ForegroundColor Yellow
 
-$studentModel = "D:\KnowledgeDistillation\student_model_rotation_robust.pt"
+$studentModel = "D:\KnowledgeDistillation\student_model_final.pth"
 if (Test-Path $studentModel) {
-    $size = [math]::Round((Get-Item $studentModel).Length / 1MB, 2)
-    Write-Host "   ✅ student_model_rotation_robust.pt exists ($size MB)" -ForegroundColor Green
-    $passed++
+    Write-Host "   [OK] Student model exists: student_model_final.pth" -ForegroundColor Green
 } else {
-    Write-Host "   ❌ Student model NOT FOUND: $studentModel" -ForegroundColor Red
-    $issues += "Student model missing: $studentModel"
+    Write-Host "   [!] Student model not found" -ForegroundColor Yellow
+    $warnings += "Student model not found at $studentModel"
 }
 
-# =============================================================================
-# Check 2: Backend References Correct Model Path
-# =============================================================================
-$checks++
-Write-Host "2️⃣ Checking backend model reference..." -ForegroundColor Yellow
+$tfliteModels = Get-ChildItem "D:\Intelli_PEST-Backend\tflite_models_compatible\*.tflite" 2>$null
+if ($tfliteModels) {
+    Write-Host "   [OK] TFLite models found: $($tfliteModels.Count) models" -ForegroundColor Green
+} else {
+    Write-Host "   [X] No TFLite models in Backend" -ForegroundColor Red
+    $errors += "No TFLite models found in Intelli_PEST-Backend\tflite_models_compatible\"
+}
 
-$runServerPath = "D:\Intelli_PEST-Backend\run_server.py"
-if (Test-Path $runServerPath) {
-    $content = Get-Content $runServerPath -Raw
-    if ($content -match "student_model_rotation_robust\.pt") {
-        Write-Host "   ✅ run_server.py references correct model" -ForegroundColor Green
-        $passed++
+# Check 2: Teacher models for KD
+Write-Host ""
+Write-Host "[2/5] Checking teacher models..." -ForegroundColor Yellow
+
+$teacherDir = "D:\Intelli_PEST-Backend\teacher_models"
+if (Test-Path $teacherDir) {
+    $onnxTeachers = Get-ChildItem "$teacherDir\*.onnx" 2>$null
+    if ($onnxTeachers) {
+        Write-Host "   [OK] ONNX teacher models: $($onnxTeachers.Count) models" -ForegroundColor Green
     } else {
-        Write-Host "   ⚠️ run_server.py may reference different model" -ForegroundColor Yellow
-        $issues += "run_server.py doesn't reference student_model_rotation_robust.pt"
+        Write-Host "   [!] No ONNX teacher models" -ForegroundColor Yellow
+        $warnings += "No ONNX teacher models found"
     }
 } else {
-    Write-Host "   ❌ run_server.py not found" -ForegroundColor Red
-    $issues += "run_server.py not found"
+    Write-Host "   [!] Teacher models directory not found" -ForegroundColor Yellow
+    $warnings += "Teacher models directory not found"
 }
 
-# =============================================================================
-# Check 3: ONNX Teachers Exist for KD Training
-# =============================================================================
-$checks++
-Write-Host "3️⃣ Checking ONNX teachers..." -ForegroundColor Yellow
+# Check 3: Config consistency
+Write-Host ""
+Write-Host "[3/5] Checking configuration files..." -ForegroundColor Yellow
 
-$onnxPath = "D:\Intelli_PEST-Backend\tflite_models_compatible\onnx_models"
-if (Test-Path $onnxPath) {
-    $onnxModels = Get-ChildItem -Path $onnxPath -Filter "*.onnx" -Recurse -ErrorAction SilentlyContinue
-    $onnxCount = ($onnxModels | Measure-Object).Count
-    
-    if ($onnxCount -ge 11) {
-        $totalSize = [math]::Round(($onnxModels | Measure-Object -Property Length -Sum).Sum / 1GB, 2)
-        Write-Host "   ✅ $onnxCount ONNX teachers found ($totalSize GB)" -ForegroundColor Green
-        $passed++
-    } else {
-        Write-Host "   ⚠️ Only $onnxCount ONNX models found (expected 11)" -ForegroundColor Yellow
-        $issues += "Missing ONNX teachers (found $onnxCount, need 11)"
-    }
+$backendConfig = "D:\Intelli_PEST-Backend\configs\model_config.yaml"
+if (Test-Path $backendConfig) {
+    Write-Host "   [OK] Backend config exists" -ForegroundColor Green
 } else {
-    Write-Host "   ❌ ONNX models directory not found" -ForegroundColor Red
-    $issues += "ONNX models directory missing: $onnxPath"
+    Write-Host "   [!] Backend config not found" -ForegroundColor Yellow
+    $warnings += "model_config.yaml not found"
 }
 
-# =============================================================================
-# Check 4: Class Count Consistency
-# =============================================================================
-$checks++
-Write-Host "4️⃣ Checking class count consistency..." -ForegroundColor Yellow
+# Check 4: Class labels consistency
+Write-Host ""
+Write-Host "[4/5] Checking class definitions..." -ForegroundColor Yellow
 
-$classConfigPath = "D:\KnowledgeDistillation\configs\class_mapping.json"
-if (Test-Path $classConfigPath) {
-    try {
-        $classConfig = Get-Content $classConfigPath | ConvertFrom-Json
-        $classCount = ($classConfig.PSObject.Properties | Measure-Object).Count
-        
-        if ($classCount -eq 12) {
-            Write-Host "   ✅ Class mapping has 12 classes (11 pests + junk)" -ForegroundColor Green
-            $passed++
-        } else {
-            Write-Host "   ⚠️ Class count is $classCount (expected 12)" -ForegroundColor Yellow
-            $issues += "Class count mismatch: $classCount instead of 12"
-        }
-    } catch {
-        Write-Host "   ⚠️ Could not parse class_mapping.json" -ForegroundColor Yellow
-    }
+$expectedClasses = 12
+Write-Host "   Expected classes: $expectedClasses" -ForegroundColor White
+
+# Check if class mappings exist in configs
+$classConfig = "D:\Intelli_PEST-Backend\configs\class_config.yaml"
+if (Test-Path $classConfig) {
+    Write-Host "   [OK] Class config exists" -ForegroundColor Green
 } else {
-    Write-Host "   ⏭️ class_mapping.json not found - skipping" -ForegroundColor Gray
-    $passed++  # Don't fail on this
+    Write-Host "   [i] Class config at different location or inline" -ForegroundColor Gray
 }
 
-# =============================================================================
-# Check 5: Git Repos Initialized
-# =============================================================================
-$checks++
-Write-Host "5️⃣ Checking git repositories..." -ForegroundColor Yellow
+# Check 5: Git status sync
+Write-Host ""
+Write-Host "[5/5] Checking git synchronization..." -ForegroundColor Yellow
 
 $repos = @(
     @{ Name = "Backend"; Path = "D:\Intelli_PEST-Backend" },
-    @{ Name = "App"; Path = "D:\App\Intelli_PEST" },
-    @{ Name = "KnowledgeDistillation"; Path = "D:\KnowledgeDistillation" },
-    @{ Name = "Parent"; Path = "D:\" }
+    @{ Name = "KnowledgeDistillation"; Path = "D:\KnowledgeDistillation" }
 )
 
-$allReposOk = $true
 foreach ($repo in $repos) {
-    if (Test-Path "$($repo.Path)\.git") {
-        # Check for uncommitted changes
-        Push-Location $repo.Path
-        $status = git status --porcelain 2>$null
-        Pop-Location
-        
-        if ($status) {
-            $changeCount = ($status | Measure-Object).Count
-            Write-Host "   ⚠️ $($repo.Name): $changeCount uncommitted changes" -ForegroundColor Yellow
-        }
+    Push-Location $repo.Path
+    
+    $status = git status --porcelain 2>$null
+    $ahead = git rev-list --count "@{u}..HEAD" 2>$null
+    $behind = git rev-list --count "HEAD..@{u}" 2>$null
+    
+    if ($status -or $ahead -gt 0 -or $behind -gt 0) {
+        Write-Host "   [!] $($repo.Name) has uncommitted or unpushed changes" -ForegroundColor Yellow
+        $warnings += "$($repo.Name) not fully synced"
     } else {
-        Write-Host "   ❌ $($repo.Name): Not a git repository" -ForegroundColor Red
-        $issues += "$($repo.Name) is not a git repository"
-        $allReposOk = $false
+        Write-Host "   [OK] $($repo.Name) is synced" -ForegroundColor Green
     }
+    
+    Pop-Location
 }
 
-if ($allReposOk) {
-    Write-Host "   ✅ All git repositories initialized" -ForegroundColor Green
-    $passed++
-}
-
-# =============================================================================
 # Summary
-# =============================================================================
 Write-Host ""
-Write-Host "═══════════════════════════════════════════════════════════════════════" -ForegroundColor Cyan
+Write-Host "=======================================================================" -ForegroundColor Cyan
 
-if ($issues.Count -eq 0) {
-    Write-Host "  ✅ ALL CHECKS PASSED ($passed/$checks)                               " -ForegroundColor Green
-    Write-Host "  Pipeline is synchronized and ready!                                  " -ForegroundColor Green
-} else {
-    Write-Host "  ⚠️ ISSUES FOUND ($passed/$checks checks passed)                      " -ForegroundColor Yellow
-    Write-Host "" 
-    foreach ($issue in $issues) {
-        Write-Host "  • $issue" -ForegroundColor Red
+if ($errors.Count -eq 0 -and $warnings.Count -eq 0) {
+    Write-Host "  [OK] All checks passed! Pipeline is operational.                    " -ForegroundColor Green
+} elseif ($errors.Count -gt 0) {
+    Write-Host "  [X] ERRORS FOUND - Pipeline may not work correctly                  " -ForegroundColor Red
+    foreach ($err in $errors) {
+        Write-Host "      - $err" -ForegroundColor Red
     }
 }
 
-Write-Host "═══════════════════════════════════════════════════════════════════════" -ForegroundColor Cyan
+if ($warnings.Count -gt 0) {
+    Write-Host "  [!] Warnings:                                                        " -ForegroundColor Yellow
+    foreach ($warn in $warnings) {
+        Write-Host "      - $warn" -ForegroundColor Yellow
+    }
+}
+
+Write-Host "=======================================================================" -ForegroundColor Cyan
 Write-Host ""

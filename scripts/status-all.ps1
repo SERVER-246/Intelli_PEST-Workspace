@@ -1,25 +1,25 @@
-# 📊 Intelli-PEST Workspace Status
+# Intelli-PEST Workspace Status
 # Shows git status of all repositories at a glance
 # Usage: .\status-all.ps1
 
 Write-Host ""
-Write-Host "═══════════════════════════════════════════════════════════════════════" -ForegroundColor Cyan
-Write-Host "                    INTELLI-PEST WORKSPACE STATUS                       " -ForegroundColor Cyan
-Write-Host "═══════════════════════════════════════════════════════════════════════" -ForegroundColor Cyan
+Write-Host "=======================================================================" -ForegroundColor Cyan
+Write-Host "                    INTELLI-PEST WORKSPACE STATUS                      " -ForegroundColor Cyan
+Write-Host "=======================================================================" -ForegroundColor Cyan
 Write-Host ""
 
 $repos = @(
-    @{ Name = "🏠 Parent (Workspace)"; Path = "D:\"; Emoji = "🏠" },
-    @{ Name = "⚙️ Backend"; Path = "D:\Intelli_PEST-Backend"; Emoji = "⚙️" },
-    @{ Name = "📱 App"; Path = "D:\App\Intelli_PEST"; Emoji = "📱" },
-    @{ Name = "🧠 KnowledgeDistillation"; Path = "D:\KnowledgeDistillation"; Emoji = "🧠" }
+    @{ Name = "Parent (Workspace)"; Path = "D:\"; Tag = "[ROOT]" },
+    @{ Name = "Backend"; Path = "D:\Intelli_PEST-Backend"; Tag = "[BE]" },
+    @{ Name = "App"; Path = "D:\App\Intelli_PEST"; Tag = "[APP]" },
+    @{ Name = "KnowledgeDistillation"; Path = "D:\KnowledgeDistillation"; Tag = "[KD]" }
 )
 
 foreach ($repo in $repos) {
-    Write-Host "$($repo.Emoji) $($repo.Name)" -ForegroundColor Yellow
+    Write-Host "$($repo.Tag) $($repo.Name)" -ForegroundColor Yellow
     
     if (-not (Test-Path "$($repo.Path)\.git")) {
-        Write-Host "   ❌ Not a git repository" -ForegroundColor Red
+        Write-Host "   [X] Not a git repository" -ForegroundColor Red
         Write-Host ""
         continue
     }
@@ -51,7 +51,7 @@ foreach ($repo in $repos) {
         Write-Host ""
     } else {
         Write-Host "   Changes: " -NoNewline -ForegroundColor White
-        Write-Host "Clean ✅" -ForegroundColor Green
+        Write-Host "Clean [OK]" -ForegroundColor Green
     }
     
     # Check remote status
@@ -63,22 +63,22 @@ foreach ($repo in $repos) {
         
         if ($ahead -gt 0) {
             Write-Host "   Ahead:  " -NoNewline -ForegroundColor White
-            Write-Host "$ahead commits to push ⬆️" -ForegroundColor Magenta
+            Write-Host "$ahead commits to push" -ForegroundColor Magenta
         }
         if ($behind -gt 0) {
             Write-Host "   Behind: " -NoNewline -ForegroundColor White
-            Write-Host "$behind commits to pull ⬇️" -ForegroundColor Yellow
+            Write-Host "$behind commits to pull" -ForegroundColor Yellow
         }
     } else {
         Write-Host "   Remote: " -NoNewline -ForegroundColor White
-        Write-Host "No remote configured ⚠️" -ForegroundColor Yellow
+        Write-Host "No remote configured [!]" -ForegroundColor Yellow
     }
     
     Pop-Location
     Write-Host ""
 }
 
-Write-Host "═══════════════════════════════════════════════════════════════════════" -ForegroundColor Cyan
+Write-Host "=======================================================================" -ForegroundColor Cyan
 Write-Host "  Tip: Use .\commit-all.ps1 -Message 'msg' -All to commit all repos    " -ForegroundColor Gray
-Write-Host "═══════════════════════════════════════════════════════════════════════" -ForegroundColor Cyan
+Write-Host "=======================================================================" -ForegroundColor Cyan
 Write-Host ""
