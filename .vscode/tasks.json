@@ -1,0 +1,168 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "📊 Status All Repos",
+            "type": "shell",
+            "command": "powershell",
+            "args": ["-ExecutionPolicy", "Bypass", "-File", "D:\\scripts\\status-all.ps1"],
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared",
+                "clear": true
+            },
+            "problemMatcher": [],
+            "group": "none"
+        },
+        {
+            "label": "💾 Commit All Repos",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-ExecutionPolicy", "Bypass",
+                "-File", "D:\\scripts\\commit-all.ps1",
+                "-Message", "${input:commitMessage}",
+                "-All"
+            ],
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared",
+                "clear": true
+            },
+            "problemMatcher": [],
+            "group": "none"
+        },
+        {
+            "label": "💾 Commit Backend Only",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-ExecutionPolicy", "Bypass",
+                "-File", "D:\\scripts\\commit-all.ps1",
+                "-Message", "${input:commitMessage}",
+                "-Backend"
+            ],
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared",
+                "clear": true
+            },
+            "problemMatcher": [],
+            "group": "none"
+        },
+        {
+            "label": "💾 Commit KD Only",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-ExecutionPolicy", "Bypass",
+                "-File", "D:\\scripts\\commit-all.ps1",
+                "-Message", "${input:commitMessage}",
+                "-KD"
+            ],
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared",
+                "clear": true
+            },
+            "problemMatcher": [],
+            "group": "none"
+        },
+        {
+            "label": "🚀 Push All Repos",
+            "type": "shell",
+            "command": "powershell",
+            "args": ["-ExecutionPolicy", "Bypass", "-File", "D:\\scripts\\push-all.ps1", "-All"],
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared",
+                "clear": true
+            },
+            "problemMatcher": [],
+            "group": "none"
+        },
+        {
+            "label": "📥 Pull All Repos",
+            "type": "shell",
+            "command": "powershell",
+            "args": ["-ExecutionPolicy", "Bypass", "-File", "D:\\scripts\\pull-all.ps1"],
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared",
+                "clear": true
+            },
+            "problemMatcher": [],
+            "group": "none"
+        },
+        {
+            "label": "🔍 Check Pipeline Sync",
+            "type": "shell",
+            "command": "powershell",
+            "args": ["-ExecutionPolicy", "Bypass", "-File", "D:\\scripts\\sync-check.ps1"],
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared",
+                "clear": true
+            },
+            "problemMatcher": [],
+            "group": "none"
+        },
+        {
+            "label": "🔧 Setup Environment",
+            "type": "shell",
+            "command": "powershell",
+            "args": ["-ExecutionPolicy", "Bypass", "-File", "D:\\scripts\\setup-environment.ps1"],
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared",
+                "clear": true
+            },
+            "problemMatcher": [],
+            "group": "none"
+        },
+        {
+            "label": "▶️ Start Server",
+            "type": "shell",
+            "command": "python",
+            "args": ["run_server.py"],
+            "options": {
+                "cwd": "D:\\Intelli_PEST-Backend"
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            },
+            "isBackground": true,
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "🧪 Run All Tests",
+            "type": "shell",
+            "command": "python",
+            "args": ["run_unit_tests.py"],
+            "options": {
+                "cwd": "D:\\Intelli_PEST-Backend"
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "problemMatcher": [],
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            }
+        }
+    ],
+    "inputs": [
+        {
+            "id": "commitMessage",
+            "type": "promptString",
+            "description": "Enter commit message for selected repos"
+        }
+    ]
+}

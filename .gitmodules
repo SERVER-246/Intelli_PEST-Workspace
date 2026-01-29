@@ -1,0 +1,9 @@
+[submodule "Intelli_PEST-Backend"]
+	path = Intelli_PEST-Backend
+	url = https://github.com/SERVER-246/Intelli_PEST-Backend.git
+[submodule "App/Intelli_PEST"]
+	path = App/Intelli_PEST
+	url = https://github.com/SERVER-246/pest-detection-app.git
+[submodule "KnowledgeDistillation"]
+	path = KnowledgeDistillation
+	url = https://github.com/SERVER-246/Intelli_PEST-KnowledgeDistillation.git

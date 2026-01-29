@@ -1,0 +1,83 @@
+{
+    "folders": [
+        {
+            "name": "🏠 Workspace",
+            "path": "."
+        },
+        {
+            "name": "⚙️ Backend",
+            "path": "Intelli_PEST-Backend"
+        },
+        {
+            "name": "📱 App",
+            "path": "App/Intelli_PEST"
+        },
+        {
+            "name": "🧠 KnowledgeDistillation",
+            "path": "KnowledgeDistillation"
+        }
+    ],
+    "settings": {
+        "git.repositoryScanMaxDepth": 3,
+        "git.autoRepositoryDetection": true,
+        "files.exclude": {
+            "Base-dir/**": true,
+            "IMAGE DATASET/**": true,
+            "tmp/**": true,
+            "**/__pycache__": true,
+            "**/*.pyc": true,
+            "System Volume Information/**": true
+        },
+        "search.exclude": {
+            "Base-dir/**": true,
+            "IMAGE DATASET/**": true,
+            "tmp/**": true,
+            "**/node_modules": true,
+            "**/*.pt": true,
+            "**/*.pth": true,
+            "**/*.onnx": true
+        },
+        "python.defaultInterpreterPath": "${workspaceFolder:⚙️ Backend}/venv/Scripts/python.exe",
+        "python.analysis.extraPaths": [
+            "${workspaceFolder:⚙️ Backend}",
+            "${workspaceFolder:🧠 KnowledgeDistillation}"
+        ]
+    },
+    "extensions": {
+        "recommendations": [
+            "ms-python.python",
+            "ms-python.vscode-pylance",
+            "ms-toolsai.jupyter",
+            "eamodio.gitlens"
+        ]
+    },
+    "launch": {
+        "version": "0.2.0",
+        "configurations": [
+            {
+                "name": "▶️ Run Server",
+                "type": "debugpy",
+                "request": "launch",
+                "program": "${workspaceFolder:⚙️ Backend}/run_server.py",
+                "cwd": "${workspaceFolder:⚙️ Backend}",
+                "console": "integratedTerminal"
+            },
+            {
+                "name": "🧪 Run Unit Tests",
+                "type": "debugpy",
+                "request": "launch",
+                "program": "${workspaceFolder:⚙️ Backend}/run_unit_tests.py",
+                "cwd": "${workspaceFolder:⚙️ Backend}",
+                "console": "integratedTerminal"
+            },
+            {
+                "name": "🧠 KD Training",
+                "type": "debugpy",
+                "request": "launch",
+                "program": "${workspaceFolder:🧠 KnowledgeDistillation}/train_sequential.py",
+                "cwd": "${workspaceFolder:🧠 KnowledgeDistillation}",
+                "console": "integratedTerminal"
+            }
+        ]
+    }
+}

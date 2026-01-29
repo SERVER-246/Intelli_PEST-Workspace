@@ -1,0 +1,33 @@
+{
+    "github.copilot.nextEditSuggestions.enabled": true,
+    "git.repositoryScanMaxDepth": 3,
+    "git.autoRepositoryDetection": true,
+    "files.exclude": {
+        "Base-dir/**": true,
+        "IMAGE DATASET/**": true,
+        "tmp/**": true,
+        "**/__pycache__": true,
+        "**/*.pyc": true,
+        "System Volume Information/**": true,
+        "Annotation-tool/**": true,
+        "Paper/**": true,
+        "Paper-2/**": true,
+        "pest-detection-models-v1.0.0/**": true,
+        "zippy/**": true
+    },
+    "search.exclude": {
+        "Base-dir/**": true,
+        "IMAGE DATASET/**": true,
+        "tmp/**": true,
+        "**/node_modules": true,
+        "**/*.pt": true,
+        "**/*.pth": true,
+        "**/*.onnx": true,
+        "**/*.tflite": true,
+        "**/*.apk": true
+    },
+    "python.defaultInterpreterPath": "D:\\Intelli_PEST-Backend\\venv\\Scripts\\python.exe",
+    "terminal.integrated.cwd": "D:\\",
+    "editor.formatOnSave": true,
+    "python.analysis.typeCheckingMode": "basic"
+}
