@@ -22,12 +22,12 @@ if (Test-Path $studentModel) {
     $warnings += "Student model not found at $studentModel"
 }
 
-$tfliteModels = Get-ChildItem "D:\Intelli_PEST-Backend\tflite_models_compatible\*.tflite" 2>$null
+$tfliteModels = Get-ChildItem "D:\Intelli_PEST-Backend\tflite_models_compatible\android_models\*.tflite" 2>$null
 if ($tfliteModels) {
     Write-Host "   [OK] TFLite models found: $($tfliteModels.Count) models" -ForegroundColor Green
 } else {
     Write-Host "   [X] No TFLite models in Backend" -ForegroundColor Red
-    $errors += "No TFLite models found in Intelli_PEST-Backend\tflite_models_compatible\"
+    $errors += "No TFLite models found in Intelli_PEST-Backend\tflite_models_compatible\android_models\"
 }
 
 # Check 2: Teacher models for KD
