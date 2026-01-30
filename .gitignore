@@ -81,3 +81,11 @@ desktop.ini
 !intellipest.code-workspace
 !.vscode/
 !scripts/
+
+# System junk
+$RECYCLE.BIN/
+*.zip
+New OpenDocument Text.odt
+
+# Personal documents
+*.odt

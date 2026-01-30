@@ -29,5 +29,18 @@
     "python.defaultInterpreterPath": "D:\\Intelli_PEST-Backend\\venv\\Scripts\\python.exe",
     "terminal.integrated.cwd": "D:\\",
     "editor.formatOnSave": true,
-    "python.analysis.typeCheckingMode": "basic"
+    "python.analysis.typeCheckingMode": "basic",
+    "python.analysis.extraPaths": [
+        "Intelli_PEST-Backend",
+        "Intelli_PEST-Backend/black_ops_training",
+        "Intelli_PEST-Backend/black_ops_training/src",
+        "Intelli_PEST-Backend/inference_server",
+        "Intelli_PEST-Backend/src",
+        "KnowledgeDistillation"
+    ],
+    "python.analysis.diagnosticSeverityOverrides": {
+        "reportArgumentType": "warning",
+        "reportCallIssue": "warning",
+        "reportGeneralTypeIssues": "warning"
+    }
 }
