@@ -1,22 +1,22 @@
 # PROJECT_OVERSEER_REPORT.md
 
 **Generated:** 2026-01-29T10:00:00Z  
-**Last Updated:** 2026-01-30 (Analytics system, Pydantic v2 fixes, App Phase3 support)  
+**Last Updated:** 2026-02-02 (Workspace cleanup: ~10 GB recovered, duplicates removed)  
 **Repository Root Path:** `D:\`  
 **Current Git Branch:** main (Parent: Intelli_PEST-Workspace)  
-**Current HEAD Commit Hash:** 3f1631f (Parent) | 6a9ab99 (Backend) | 9284c02 (App) | 55dfc4d (KD)  
-**Short One-Line HEALTH:** 🟢 **Green** — Production-ready with Phase 3 features operational, multi-repo git management active, analytics system integrated
+**Current HEAD Commit Hash:** 4051de4 (Parent) | 6a9ab99 (Backend) | 9284c02 (App) | 55dfc4d (KD)  
+**Short One-Line HEALTH:** 🟢 **Green** — Production-ready, workspace consolidated, 29.56 GB model storage (down from 39.6 GB)
 
 ---
 
 ## STATUS SUMMARY (3 Bullets)
 
-- **Health Verdict:** Production-ready system with 96.25% accuracy, Phase 3 fully operational, auto-retraining active
+- **Health Verdict:** Production-ready system with 96.25% accuracy, Phase 3 fully operational, auto-retraining active, workspace consolidated
 - **Top 3 Prioritized Actions:**
-  1. **Consolidate scattered model files** — ~39.6 GB of model files spread across multiple directories (Rationale: Avoid duplication, reduce storage waste, clarify canonical paths)
+  1. ~~**Consolidate scattered model files**~~ ✅ **RESOLVED** — Reduced from 39.6 GB to 29.56 GB (~10 GB recovered, Jan 30 2026)
   2. ~~**Add Git tracking to D:\ root**~~ ✅ **RESOLVED** — Multi-repo management with git submodules implemented (June 2025)
-  3. **Create unified environment setup script** — ✅ Partially resolved: `D:\scripts\setup-environment.ps1` created
-- **Completeness Summary:** 165 git-tracked files in Intelli_PEST-Backend; ~1,700+ model files across workspace; 97+ tests passing; all core source files documented; **Multi-repo git orchestration active**
+  3. **Add CI/CD pipeline** — GitHub Actions or similar needed for automated testing/deployment
+- **Completeness Summary:** 165 git-tracked files in Intelli_PEST-Backend; 213 model files (29.56 GB) across workspace; 97+ tests passing; all core source files documented; **Multi-repo git orchestration active**
 
 ---
 
@@ -128,6 +128,7 @@ git --no-pager log --pretty=format:"%h | %ad | %an | %s" --date=short --no-merge
 
 | Hash | Date | Author | Message |
 |------|------|--------|---------|
+| 4051de4 | 2026-01-30 | SERVER-246 | cleanup: Remove duplicate files, add Archive to gitignore (Parent repo) |
 | 6a9ab99 | 2026-01-30 | SERVER-246 | feat: Add analytics system, connection tracker, and Pydantic v2 fixes |
 | af56365 | 2026-01-16 | SERVER-246 | Phase 3 fully operational: learning-based region scoring, multi-label classification |
 | 1a71531 | 2026-01-14 | SERVER-246 | Fix CLASS_NAMES order to match ImageFolder alphabetical sorting |
@@ -175,7 +176,7 @@ git --no-pager log --pretty=format:"%h | %ad | %an | %s" --date=short --no-merge
 | Category | Count | Total Size |
 |----------|-------|------------|
 | Git-tracked files (Intelli_PEST-Backend) | 165 | ~5 MB (source) |
-| Model files (.pt, .pth, .onnx, .tflite) | 1,714 | 39.6 GB |
+| Model files (.pt, .pth, .onnx, .tflite) | 213 | 29.56 GB |
 | Training dataset images | 3,840 | 13.61 GB |
 | Feedback/test images | ~500+ | ~2 GB |
 | Source code files (.py) | ~100+ | ~2 MB |
@@ -963,11 +964,12 @@ D:\ (Intelli_PEST-Workspace)           <- Parent Repository
 10. **Analytics system** — Correction tracker, performance analytics, performance dashboard (January 2026) ✅
 11. **Pydantic v2 migration** — All schemas updated with modern validation (January 2026) ✅
 12. **App Phase 3 support** — Slow connection handling, app update system (January 2026) ✅
+13. **Workspace consolidation** — Removed 10 GB duplicates, archived legacy docs, comprehensive archival log (January 30, 2026) ✅
 
 ### Partial Items ⚠️
 
-1. **Documentation scattered** — Journey doc in multiple locations
-2. **Model files duplicated** — Same models in Base-dir, tflite_models_compatible, and tmp
+1. ~~**Documentation scattered**~~ ✅ **RESOLVED** — Duplicate Journey doc removed, canonical version in Backend/docs/
+2. ~~**Model files duplicated**~~ ✅ **RESOLVED** — Cleaned up duplicates, 10 GB recovered (see D:\Archive\ARCHIVAL_LOG.md)
 3. **No unified CI/CD** — Manual deployment only
 
 ### Missing / Broken Items ❌
@@ -981,9 +983,9 @@ D:\ (Intelli_PEST-Workspace)           <- Parent Repository
 | Priority | Action | Rationale | Impact | Status |
 |----------|--------|-----------|--------|--------|
 | ~~1~~ | ~~Add root-level git~~ | ~~Unified version control~~ | ~~HIGH~~ | ✅ DONE |
-| 1 | Consolidate model files | Reduce 39.6GB storage | MEDIUM | TODO |
-| 2 | Add CI/CD pipeline | Automated testing/deploy | HIGH | TODO |
-| 3 | Archive Base-dir legacy files | Reduce confusion | LOW | TODO |
+| ~~2~~ | ~~Consolidate model files~~ | ~~Reduce 39.6GB storage~~ | ~~MEDIUM~~ | ✅ DONE (10 GB recovered) |
+| 1 | Add CI/CD pipeline | Automated testing/deploy | HIGH | TODO |
+| ~~3~~ | ~~Archive Base-dir legacy files~~ | ~~Reduce confusion~~ | ~~LOW~~ | ✅ DONE (documented in Archive/) |
 
 ---
 
@@ -1149,9 +1151,10 @@ Get-ChildItem "D:\IMAGE DATASET\" -Recurse -File | Measure-Object -Property Leng
 **Full Path:** `D:\PROJECT_OVERSEER_REPORT_PEST.md`  
 **Last Updated:** 2026-01-30  
 **Total Files Analyzed:** 165 tracked + 1,700+ model files  
-**Total Model Storage:** 39.6 GB  
+**Total Model Storage:** 29.56 GB (reduced from 39.6 GB on Jan 30, 2026)  
 **Total Training Data:** 3,840 images (13.61 GB)  
-**Original Training Artifacts:** D:\Base-dir (~5 GB)
+**Original Training Artifacts:** D:\Base-dir (~5 GB)  
+**Archival Documentation:** D:\Archive\ARCHIVAL_LOG.md
 
 ---
 
@@ -1159,6 +1162,7 @@ Get-ChildItem "D:\IMAGE DATASET\" -Recurse -File | Measure-Object -Property Leng
 
 | Date | Repo | Changes |
 |------|------|---------|
+| 2026-01-30 | Parent | Workspace cleanup: Deleted tmp/ (6.25GB), pest-detection-models-v1.0.0/ (4.1GB), Doc/Base-dir-1/ (424MB), duplicate Journey doc; Created Archive/ with ARCHIVAL_LOG.md |
 | 2026-01-30 | Backend | Analytics system (correction_tracker, performance_analytics, performance_dashboard), Pydantic v2 fixes, connection tracker |
 | 2026-01-30 | App | Phase3 model support, slow connection handling, app update system |
 | 2026-01-30 | Parent | sync-check.ps1 path fix, documentation updates |
